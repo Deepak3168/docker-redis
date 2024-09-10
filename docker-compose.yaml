@@ -1,4 +1,4 @@
-version: '3.3'
+version: "3.9"
 
 services:
   web:
@@ -7,26 +7,40 @@ services:
     volumes:
       - .:/code
     ports:
-      - "8000:8000"
+      - 8000:8000
     depends_on:
       - db
-    environment:
-      - DEBUG=True
-      - CACHE_URL=redis://redis:6379/1  # Add this if needed for caching
-    networks:
-      - mynetwork
-
+      - redis
+      - redis_insight
+   
   db:
     image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    networks:
-      - mynetwork
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
 
+  redis:
+    image: redis:6.0.7
+    container_name: redis
+    restart: always
+    volumes:
+      - redis_volume_data:/data
+    ports:
+      - 6379:6379
+  redis_insight:
+    image: redislabs/redisinsight:1.14.0
+    container_name: redis_insight
+    restart: always
+    ports:
+      - 8001:8001
+    volumes:
+      - redis_insight_volume_data:/db
+    
 volumes:
   postgres_data:
+  redis_volume_data:
+  redis_insight_volume_data:
 
-networks:
-  mynetwork:
+
+    
